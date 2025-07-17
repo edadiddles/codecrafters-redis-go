@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -23,25 +24,20 @@ func main() {
 			fmt.Println("Error accepting connection: ", err.Error())
 			os.Exit(1)
 		}
-		input := make([]byte, 250)
-		conn.Read(input)
 
-		curr_cmd := ""
-		for i := range 250 {
-			fmt.Printf("%c", input[i])
-			if input[i] == 0 {
-				break
-			} else if input[i] == '\r' {
-				//pass
-			} else if input[i] == '\n' {
-				if string(curr_cmd) == "PING" {
-					conn.Write([]byte("+PONG\r\n"))
-				}
-				curr_cmd = ""
-			} else {
-				curr_cmd += string(input[i])
-			}
+		go handleConnection(conn)
+	}
+}
+
+func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
+	scanner := bufio.NewScanner(conn)
+	for scanner.Scan() {
+		text := scanner.Text()
+		fmt.Println(text)
+		if text == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
 		}
-		fmt.Println("")
 	}
 }
