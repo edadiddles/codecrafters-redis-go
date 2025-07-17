@@ -26,7 +26,7 @@ func main() {
 		input := make([]byte, 250)
 		conn.Read(input)
 
-		for i := range 251 {
+		for i := range 250 {
 			if input[i] == '\n' {
 				conn.Write([]byte("+PONG\r\n"))
 			}
