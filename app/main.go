@@ -26,10 +26,22 @@ func main() {
 		input := make([]byte, 250)
 		conn.Read(input)
 
+		curr_cmd := ""
 		for i := range 250 {
-			if input[i] == '\n' {
-				conn.Write([]byte("+PONG\r\n"))
+			fmt.Printf("%c", input[i])
+			if input[i] == 0 {
+				break
+			} else if input[i] == '\r' {
+				//pass
+			} else if input[i] == '\n' {
+				if string(curr_cmd) == "PING" {
+					conn.Write([]byte("+PONG\r\n"))
+				}
+				curr_cmd = ""
+			} else {
+				curr_cmd += string(input[i])
 			}
 		}
+		fmt.Println("")
 	}
 }
