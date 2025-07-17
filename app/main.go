@@ -17,11 +17,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
-	}
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+			os.Exit(1)
+		}
+		input := make([]byte, 250)
+		conn.Read(input)
 
-	conn.Write([]byte("+PONG\r\n"))
+		for i := range 251 {
+			if input[i] == '\n' {
+				conn.Write([]byte("+PONG\r\n"))
+			}
+		}
+	}
 }
