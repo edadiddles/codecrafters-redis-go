@@ -38,6 +38,12 @@ func handleConnection(conn net.Conn) {
 		fmt.Println(text)
 		if text == "PING" {
 			conn.Write([]byte("+PONG\r\n"))
+		} else if text == "ECHO" {
+			scanner.Scan()
+			encode_length := scanner.Text()
+			scanner.Scan()
+			echo := scanner.Text()
+			conn.Write([]byte(fmt.Sprintf("%s\r\n%s\r\n", encode_length, echo)))
 		}
 	}
 }
