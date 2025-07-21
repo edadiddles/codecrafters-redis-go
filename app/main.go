@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+type entry struct {
+	val string
+}
+
+var database map[string]entry = make(map[string]entry)
+
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
@@ -44,6 +50,29 @@ func handleConnection(conn net.Conn) {
 			scanner.Scan()
 			echo := scanner.Text()
 			conn.Write([]byte(fmt.Sprintf("%s\r\n%s\r\n", encode_length, echo)))
+		} else if text == "GET" {
+			scanner.Scan()
+			_ = scanner.Text()
+			scanner.Scan()
+			key := scanner.Text()
+			if entry, ok := database[key]; ok {
+				conn.Write([]byte(fmt.Sprintf("$%d\r\n%s\r\n", len(entry.val), entry.val)))
+			} else {
+				conn.Write([]byte(fmt.Sprintf("$-1\r\n")))
+			}
+		} else if text == "SET" {
+			scanner.Scan()
+			_ = scanner.Text()
+			scanner.Scan()
+			key := scanner.Text()
+			scanner.Scan()
+			_ = scanner.Text()
+			scanner.Scan()
+			val := scanner.Text()
+
+			database[key] = entry{ val }
+			conn.Write([]byte(fmt.Sprintf("+OK\r\n")))
+
 		}
 	}
 }
